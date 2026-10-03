@@ -1,0 +1,1357 @@
+index.html 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PULSE | Neumorphic Focus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="auth-overlay" class="auth-gate">
+        <div class="auth-box">
+            <div class="auth-pulse-logo">PULSE</div>
+            <p class="auth-header-sub">Operator Initialization</p>
+            
+            <div class="auth-inputs-container">
+                <input type="text" id="user-name" placeholder="Enter Operator Name" class="neu-input auth-field" autocomplete="off">
+                <button id="login-confirm" class="action-btn auth-continue-btn">ACCESS SYSTEM</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-main" class="hidden">
+        <button id="logout-btn" class="logout-btn" title="Return to Login">⏻ LOGOUT</button>
+
+        <header>
+            <div class="header-controls">
+                <h1 class="logo">PULSE</h1>
+                <div id="real-time-clock" class="clock-display">00:00:00</div>
+                <div class="streak-display" title="Daily Focus Streak">🔥 <span id="streak-count">0</span></div>
+                <button id="theme-toggle" class="icon-btn-small" style="font-size: 1.2rem; padding: 0 10px;" title="Toggle System Theme">🌙</button>
+            </div>
+            <p id="greeting" class="subtitle"></p>
+        </header>
+
+        <main class="neumorphic-layout">
+            <section class="side-panel">
+                <div class="panel-header"><h3>WORKSPACE TASKS</h3></div>
+                
+                <div class="task-input-area">
+                    <div class="autocomplete-wrapper">
+                        <input id="task-input" placeholder="Add new task..." class="neu-input" autocomplete="off">
+                        <ul id="autocomplete-list" class="autocomplete-items hidden"></ul>
+                    </div>
+                    <select id="priority" class="neu-input" title="Select Priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Med</option>
+                        <option value="high">High</option>
+                    </select>
+                    <button id="add-task-btn" class="add-btn">+</button>
+                </div>
+                
+                <p style="font-size: 0.75rem; color: var(--text-light); text-align: center; margin-bottom: 10px;">Select to start timer. Drag to reorder.</p>
+                <ul id="task-list"></ul>
+            </section>
+
+            <section class="center-panel">
+                <div class="top-indicator"><div class="check-icon">✓</div></div>
+
+                <div class="timer-dial-container" id="dash-dial-container">
+                    <div class="timer-dial" id="main-dial">
+                        <svg class="progress-ring" width="340" height="340">
+                            <circle cx="170" cy="170" r="160" class="progress-bg"></circle>
+                            <circle id="progress-ring" cx="170" cy="170" r="160" class="progress-value"></circle>
+                        </svg>
+                        <div class="dial-content">
+                            <div class="dot-indicator" id="mode-dot"></div>
+                            <div id="timer-numbers">25:00</div>
+                            <div class="timer-subtext" id="timer-label">GENERAL FOCUS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="time-setter">
+                    <label for="custom-min" class="subtitle" style="font-size: 0.8rem; font-weight: bold;">SET MINUTES:</label>
+                    <input type="number" id="custom-min" value="25" min="1" class="neu-input small-input">
+                </div>
+
+                <div class="timer-controls">
+                    <button id="start-btn" class="action-btn">START</button>
+                    <button id="reset-btn" class="action-btn outline">RESET</button>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 10px;">Use for general focus without a specific task.</p>
+            </section>
+
+            <section class="side-panel">
+                <div class="panel-header">
+                    <h3>ANALYTICS</h3>
+                    <div>
+                        <button id="open-analytics-btn" class="icon-btn-small" style="margin-right: 10px;" title="Deep Analytics">📊</button>
+                        <button id="clear-history" class="icon-btn-small" title="Clear Data">🗑</button>
+                    </div>
+                </div>
+
+                <div class="stats-overview">
+                    <div class="stat-pill highlight-pill"><span>Score:</span> <strong id="prod-score" style="color: var(--accent-blue);">0</strong></div>
+                    <div class="stat-pill"><span>Today:</span> <strong id="total-time">0m</strong></div>
+                </div>
+
+                <div class="daily-goal-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <h4 style="font-size: 0.8rem; color: var(--text-light);">DAILY GOAL</h4>
+                        <span style="font-size: 0.8rem; font-weight: 800;"><span id="goal-current">0</span> / <span id="goal-target">4</span></span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="goal-progress"></div></div>
+                </div>
+
+                <h4 style="margin-top: 20px; font-size: 0.8rem; color: var(--text-light);">RECENT LOGS</h4>
+                <div id="history-log" class="log-list"><p class="empty">No logs yet.</p></div>
+            </section>
+        </main>
+
+        <footer class="quote-footer"><p id="quote-display">"System optimal. Awaiting instructions."</p></footer>
+    </div>
+
+    <div id="workspace-modal" class="auth-gate hidden" style="backdrop-filter: blur(10px);">
+        <div class="workspace-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <button id="ws-back-btn" class="icon-btn-small" style="font-size: 1rem; font-weight: bold; background: var(--panel-bg); padding: 10px 20px; border-radius: 15px; box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);">⬅ Dashboard</button>
+                <div class="stat-pill highlight-pill" style="padding: 10px 20px; width: auto;"><span style="margin-right: 10px;">Pomodoros:</span> <strong id="ws-pomodoro-count" style="color: var(--accent-blue);">0</strong></div>
+            </div>
+            
+            <h2 id="ws-task-title" style="color: var(--text-main); font-size: 1.8rem; margin-bottom: 10px; text-align: center; word-break: break-word;">Task Title</h2>
+            <p id="ws-status-text" style="text-align: center; color: var(--text-light); font-weight: 600; margin-bottom: 10px; min-height: 20px; transition: color 0.3s ease;"></p>
+
+            <div class="center-panel">
+                <div class="timer-dial-container" id="ws-dial-container" style="transition: box-shadow 0.5s ease;">
+                    <div class="timer-dial" id="ws-dial">
+                        <svg class="progress-ring" width="340" height="340">
+                            <circle cx="170" cy="170" r="160" class="progress-bg"></circle>
+                            <circle id="ws-progress-ring" cx="170" cy="170" r="160" class="progress-value"></circle>
+                        </svg>
+                        <div class="dial-content">
+                            <div class="dot-indicator" id="ws-mode-dot"></div>
+                            <div id="ws-timer-numbers">25:00</div>
+                            <div class="timer-subtext" id="ws-timer-label">FOCUS TIME</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="time-setter" id="ws-time-setter-container" style="justify-content: center; margin-top: 15px;">
+                    <label for="ws-custom-min" class="subtitle" style="font-size: 0.8rem; font-weight: bold;">TASK DURATION (MIN):</label>
+                    <input type="number" id="ws-custom-min" min="1" class="neu-input small-input">
+                </div>
+
+                <div class="timer-controls" style="margin-top: 20px;">
+                    <button id="ws-start-btn" class="action-btn">START</button>
+                    <button id="ws-reset-btn" class="action-btn outline">RESET</button>
+                    <button id="ws-skip-btn" class="action-btn outline hidden" title="Skip Break">⏭ SKIP</button>
+                    <button id="ws-complete-btn" class="action-btn outline" style="color: var(--priority-low); border: 1px solid var(--priority-low);">✓ COMPLETE TASK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="analytics-modal" class="auth-gate hidden">
+        <div class="analytics-box">
+            <div class="panel-header"><h2>Deep Analytics</h2><button id="close-analytics-btn" class="icon-btn-small" style="font-size: 1.5rem;">✕</button></div>
+            <div class="modal-stats-grid">
+                <div class="stat-pill"><span>Total Studied</span><strong id="lifetime-hours" style="font-size: 1.5rem; color: var(--accent-blue);">0h 0m</strong></div>
+                <div class="stat-pill"><span>Peak Productivity</span><strong id="peak-time" style="font-size: 1.5rem; color: var(--accent-orange);">N/A</strong></div>
+            </div>
+            <div class="chart-container" style="margin-top: 20px; height: 250px;"><canvas id="focusChart"></canvas></div>
+            <div style="margin-top: 30px;">
+                <h4 style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 10px;">ACTIVITY HEATMAP (LAST 30 DAYS)</h4>
+                <div id="heatmap-grid" class="heatmap-container"></div>
+                <div class="heatmap-legend" style="display: flex; align-items: center; gap: 5px; margin-top: 10px; font-size: 0.8rem; color: var(--text-light); justify-content: flex-end;">
+                    Less <div class="heat-box level-0"></div> <div class="heat-box level-1"></div> <div class="heat-box level-2"></div> <div class="heat-box level-3"></div> <div class="heat-box level-4"></div> More
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedback-modal" class="auth-gate hidden">
+        <div class="auth-box feedback-box">
+            <h2 style="margin-bottom: 20px; color: var(--text-main);">Rate your experience</h2>
+            <div class="star-rating" id="star-rating">
+                <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
+            </div>
+            <div class="timer-controls" style="justify-content: center; margin-top: 25px;">
+                <button id="submit-feedback-btn" class="action-btn">Submit</button>
+                <button id="skip-feedback-btn" class="action-btn outline" style="background: transparent; color: var(--text-light); box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);">Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="beep-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+#style.css
+
+
+:root {
+    --bg-color: #e6eef5;
+    --text-main: #4a5568;
+    --text-light: #8e9bb0;
+    --shadow-light: #ffffff;
+    --shadow-dark: #c8d5e0;
+    --dial-bg: linear-gradient(135deg, #8ba8e0, #5c7cce);
+    --dial-break: linear-gradient(135deg, #ffb347, #ff7b00);
+    --dial-text: #ffffff;
+    
+    /* Core Accents */
+    --accent-blue: #6b8cce;
+    --accent-orange: #ff9800;
+    --accent-green: #39d353;
+    
+    /* Task Priority Colors */
+    --priority-low: #39d353;    /* Green */
+    --priority-medium: #f1c40f; /* Yellow */
+    --priority-high: #ff5252;   /* Red */
+    
+    --panel-bg: #fdfdfd;
+    --border-color: #f0f0f0;
+    --ring-bg: rgba(255, 255, 255, 0.2);
+    
+    /* Heatmap */
+    --heat-0: #ebedf0;
+    --heat-1: #9be9a8;
+    --heat-2: #40c463;
+    --heat-3: #30a14e;
+    --heat-4: #216e39;
+}
+
+[data-theme="dark"] {
+    --bg-color: #0d1117;
+    --text-main: #e6edf3;
+    --text-light: #7d8590;
+    --shadow-light: #161b22;
+    --shadow-dark: #050608;
+    --dial-bg: linear-gradient(135deg, #00f0ff, #007acc);
+    --dial-break: linear-gradient(135deg, #ff9800, #d84315);
+    
+    --accent-blue: #00f0ff;
+    
+    /* Task Priority Colors */
+    --priority-low: #39d353;
+    --priority-medium: #ffd700;
+    --priority-high: #ff5252;
+    
+    --panel-bg: #10151d;
+    --border-color: #21262d;
+    --ring-bg: rgba(0, 240, 255, 0.1);
+    
+    --heat-0: #161b22;
+    --heat-1: #0e4429;
+    --heat-2: #006d32;
+    --heat-3: #26a641;
+    --heat-4: #39d353;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
+
+body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; }
+
+.hidden { display: none !important; }
+#app-main { width: 100%; max-width: 1200px; padding: 20px; display: flex; flex-direction: column; min-height: 95vh; position: relative; }
+
+/* Modal overlays */
+.auth-gate { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; background: var(--bg-color); z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease, visibility 0.3s; }
+.auth-box { background: var(--bg-color); width: 90%; max-width: 400px; border-radius: 30px; padding: 40px; text-align: center; box-shadow: 20px 20px 40px var(--shadow-dark), -20px -20px 40px var(--shadow-light); transform: scale(1); transition: transform 0.3s ease; }
+.full-width { width: 100%; }
+
+/* Workspace Modal Styles */
+.workspace-box { background: var(--bg-color); width: 95%; max-width: 800px; border-radius: 30px; padding: 40px; box-shadow: 20px 20px 40px var(--shadow-dark), -20px -20px 40px var(--shadow-light); }
+.workspace-dial-container.glow-work { box-shadow: 0 0 40px rgba(0, 240, 255, 0.4), inset 5px 5px 15px rgba(0,0,0,0.1) !important; }
+.workspace-dial-container.glow-break { box-shadow: 0 0 40px rgba(255, 152, 0, 0.4), inset 5px 5px 15px rgba(0,0,0,0.1) !important; }
+.workspace-dial-container.glow-completed { box-shadow: 0 0 40px rgba(57, 211, 83, 0.4), inset 5px 5px 15px rgba(0,0,0,0.1) !important; }
+
+header { text-align: center; margin-bottom: 30px; margin-top: 20px; }
+.header-controls { display: flex; justify-content: center; align-items: center; gap: 20px; }
+.logo { font-weight: 800; color: var(--accent-blue); letter-spacing: 2px; }
+.clock-display { font-weight: 600; color: var(--text-light); background: var(--bg-color); padding: 5px 15px; border-radius: 20px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); }
+.subtitle { margin-top: 10px; color: var(--text-light); font-size: 1rem; font-weight: 600; }
+.streak-display { font-weight: 800; color: var(--accent-orange); background: var(--bg-color); padding: 5px 15px; border-radius: 20px; box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light); }
+
+.neumorphic-layout { display: flex; justify-content: center; align-items: flex-start; gap: 50px; flex-grow: 1; }
+.side-panel { background: var(--panel-bg); width: 300px; height: 550px; border-radius: 20px; padding: 25px; box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light); display: flex; flex-direction: column; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.panel-header h3 { font-size: 0.9rem; font-weight: 800; color: var(--text-main); }
+.icon-btn-small { background: transparent; border: none; font-size: 1.2rem; color: var(--text-light); cursor: pointer; outline: none; }
+
+.task-input-area { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+.neu-input { border: none; background: var(--bg-color); padding: 12px; border-radius: 12px; color: var(--text-main); font-family: inherit; font-weight: 600; box-shadow: inset 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); outline: none; }
+#task-input { flex-grow: 1; width: 100%; }
+.add-btn { background: var(--accent-blue); color: white; border: none; border-radius: 12px; width: 42px; height: 42px; flex-shrink: 0; cursor: pointer; font-size: 1.2rem; font-weight: bold; box-shadow: 3px 3px 6px var(--shadow-dark); }
+[data-theme="dark"] .add-btn { color: #0d1117; }
+
+/* DRAG & DROP TASK STYLES */
+ul { list-style: none; overflow-y: auto; flex-grow: 1; padding: 5px; }
+.task-item { display: flex; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border-color); cursor: grab; border-radius: 8px; margin-bottom: 5px; transition: all 0.2s; background-color: var(--panel-bg); }
+.task-item:active { cursor: grabbing; }
+.task-item:hover { transform: translateY(-2px); box-shadow: 0 5px 10px var(--shadow-dark); }
+.task-item.status-running { border-left: 4px solid var(--accent-blue); background-color: var(--bg-color); box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light); }
+.task-item.status-paused { border-left: 4px solid var(--accent-orange); opacity: 0.8; }
+
+/* Smooth Drag Effects */
+.task-item.dragging { opacity: 0.6; box-shadow: 0 10px 20px var(--shadow-dark); transform: scale(1.02); z-index: 10; border: 1px dashed var(--accent-blue); }
+
+/* COMPLETED TASK STYLES */
+.task-item.completed { background-color: #d4edda !important; border: 1px solid #c3e6cb; border-left: 4px solid #28a745 !important; }
+[data-theme="dark"] .task-item.completed { background-color: rgba(40, 167, 69, 0.2) !important; border: 1px solid rgba(40, 167, 69, 0.5); border-left: 4px solid #39d353 !important; }
+.task-item.completed .task-text { color: #155724; text-decoration: line-through; opacity: 0.7; }
+[data-theme="dark"] .task-item.completed .task-text { color: #8fce00; }
+.task-item.completed .task-dot { display: none; }
+.task-item.completed .task-tick { display: inline-block; }
+
+.task-status-icon { font-size: 0.8rem; margin-right: 10px; font-weight: bold; }
+.status-running .task-status-icon { color: var(--accent-blue); animation: pulse 1.5s infinite; }
+.status-paused .task-status-icon { color: var(--accent-orange); }
+
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.task-dot { width: 15px; height: 15px; border-radius: 50%; margin-right: 10px; flex-shrink: 0; }
+.task-dot.low { background: var(--priority-low); }
+.task-dot.medium { background: var(--priority-medium); }
+.task-dot.high { background: var(--priority-high); }
+.task-tick { display: none; color: #28a745; font-weight: 900; margin-right: 15px; font-size: 1.2rem; }
+
+.task-text { flex-grow: 1; font-weight: 600; font-size: 0.9rem; word-break: break-word; pointer-events: none; }
+.task-del { background: transparent; border: none; color: var(--text-light); cursor: pointer; font-weight: bold; font-size: 1.2rem; padding: 0 5px; z-index: 5; }
+.task-del:hover { color: var(--priority-high); }
+
+.center-panel { display: flex; flex-direction: column; align-items: center; gap: 25px; }
+.top-indicator { width: 60px; height: 60px; background: var(--priority-low); border-radius: 15px; display: flex; justify-content: center; align-items: center; color: white; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(57, 211, 83, 0.4), inset 2px 2px 5px rgba(255,255,255,0.5); margin-bottom: -20px; transition: background 0.5s ease; }
+[data-theme="dark"] .top-indicator { color: #0d1117; box-shadow: 0 5px 15px rgba(57, 211, 83, 0.3), inset 2px 2px 5px rgba(255,255,255,0.2); }
+
+.break-active .top-indicator { background: var(--accent-orange); box-shadow: 0 10px 20px rgba(255, 152, 0, 0.4), inset 2px 2px 5px rgba(255,255,255,0.5); }
+.timer-dial.break-mode { background: var(--dial-break); }
+[data-theme="dark"] .timer-dial.break-mode { box-shadow: inset 5px 5px 15px rgba(0,0,0,0.5), 0 0 30px rgba(255, 152, 0, 0.15); }
+.break-mode .dot-indicator { background: white; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+
+.timer-dial-container { position: relative; padding: 30px; border-radius: 50%; background: var(--bg-color); box-shadow: 20px 20px 40px var(--shadow-dark), -20px -20px 40px var(--shadow-light); }
+.timer-dial { width: 320px; height: 320px; border-radius: 50%; background: var(--dial-bg); display: flex; justify-content: center; align-items: center; position: relative; box-shadow: inset 5px 5px 15px rgba(0,0,0,0.1), 0 10px 20px rgba(92, 124, 206, 0.3); transition: background 0.5s ease; }
+[data-theme="dark"] .timer-dial { box-shadow: inset 5px 5px 15px rgba(0,0,0,0.5), 0 0 30px rgba(0, 240, 255, 0.1); }
+.progress-ring { position: absolute; top: -10px; left: -10px; transform: rotate(-90deg); }
+.progress-bg { fill: none; stroke: var(--ring-bg); stroke-width: 4; }
+.progress-value { fill: none; stroke: #ffffff; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1005; transition: stroke-dashoffset 1s linear; }
+.dial-content { display: flex; flex-direction: column; align-items: center; color: var(--dial-text); }
+.dot-indicator { width: 10px; height: 10px; background: var(--priority-low); border-radius: 50%; margin-bottom: 10px; box-shadow: 0 0 10px rgba(57, 211, 83, 0.8); transition: background 0.5s; }
+.dot-indicator.break-dot { background: white; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+#timer-numbers, #ws-timer-numbers { font-size: 4.5rem; font-weight: 600; line-height: 1; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
+.timer-subtext { font-size: 1rem; font-weight: 800; letter-spacing: 2px; opacity: 0.9; }
+
+.time-setter { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.small-input { width: 70px; text-align: center; padding: 8px; }
+.timer-controls { display: flex; gap: 15px; }
+.action-btn { background: var(--bg-color); border: none; color: var(--accent-blue); font-weight: 800; padding: 15px 30px; border-radius: 25px; cursor: pointer; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); transition: all 0.2s ease; }
+.action-btn:active { box-shadow: inset 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); }
+.action-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light); }
+
+.stats-overview { display: flex; flex-direction: column; gap: 10px; }
+.stat-pill { background: var(--bg-color); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); }
+.highlight-pill { border: 1px solid var(--border-color); }
+.daily-goal-container { margin-top: 20px; background: var(--bg-color); padding: 15px; border-radius: 12px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); }
+.progress-bar-bg { width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--accent-blue); width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.log-list { margin-top: 10px; flex-grow: 1; overflow-y: auto; }
+.log-item { font-size: 0.85rem; padding: 8px 0; border-bottom: 1px dashed var(--border-color); }
+.log-item.break-log { color: var(--accent-orange); font-style: italic; }
+
+.quote-footer { text-align: center; margin-top: 40px; padding-bottom: 20px; }
+#quote-display { font-size: 1.1rem; font-style: italic; font-weight: 600; color: var(--accent-blue); text-shadow: 1px 1px 2px var(--shadow-light); }
+
+.analytics-box { background: var(--bg-color); width: 95%; max-width: 800px; border-radius: 30px; padding: 40px; box-shadow: 20px 20px 40px var(--shadow-dark), -20px -20px 40px var(--shadow-light); max-height: 90vh; overflow-y: auto; }
+.modal-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.modal-stats-grid .stat-pill { flex-direction: column; align-items: flex-start; gap: 5px; padding: 20px; }
+.heatmap-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; background: var(--panel-bg); padding: 15px; border-radius: 12px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); }
+.heat-box { width: 16px; height: 16px; border-radius: 4px; transition: transform 0.2s; }
+.heat-box:hover { transform: scale(1.2); }
+.level-0 { background-color: var(--heat-0); }
+.level-1 { background-color: var(--heat-1); }
+.level-2 { background-color: var(--heat-2); }
+.level-3 { background-color: var(--heat-3); }
+.level-4 { background-color: var(--heat-4); }
+
+/* Logout Button */
+.logout-btn { position: fixed; bottom: 25px; left: 30px; top: auto; background: var(--bg-color); border: none; color: var(--priority-high); font-weight: 800; font-size: 0.85rem; padding: 12px 20px; border-radius: 20px; cursor: pointer; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); transition: all 0.2s ease; z-index: 100; letter-spacing: 1px; }
+.logout-btn:active { box-shadow: inset 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); }
+[data-theme="dark"] .logout-btn { color: var(--priority-high); }
+
+/* Feedback Modal */
+.feedback-box { padding: 35px; }
+.star-rating { display: flex; justify-content: center; gap: 15px; font-size: 3rem; cursor: pointer; }
+.star { color: transparent; -webkit-text-stroke: 2px var(--shadow-dark); transition: color 0.2s ease, transform 0.2s ease, text-shadow 0.2s ease, -webkit-text-stroke 0.2s ease; }
+[data-theme="dark"] .star { -webkit-text-stroke: 2px var(--text-light); }
+.star:hover, .star.hovered, .star.selected { color: var(--accent-orange); -webkit-text-stroke: 2px var(--accent-orange); transform: scale(1.15); text-shadow: 0 0 15px rgba(255, 152, 0, 0.4); }
+
+@media(max-width: 1000px) { 
+    .neumorphic-layout { flex-direction: column; align-items: center; } 
+    .side-panel { width: 100%; max-width: 400px; height: auto; min-height: 350px; } 
+    .modal-stats-grid { grid-template-columns: 1fr; } 
+    .logout-btn { bottom: 15px; left: 15px; top: auto; padding: 10px 15px; font-size: 0.75rem; }
+}
+
+/* ============================================== */
+/* 🤖 AUTOCOMPLETE DROPDOWN STYLES                */
+/* ============================================== */
+.autocomplete-wrapper { 
+    position: relative; 
+    flex-grow: 1; 
+    width: 100%; 
+}
+
+.autocomplete-items {
+    position: absolute; 
+    border-radius: 12px; 
+    top: 100%; 
+    left: 0; 
+    right: 0; 
+    z-index: 99; 
+    margin-top: 8px;
+    background: var(--bg-color); 
+    max-height: 240px; 
+    overflow-y: auto; 
+    padding: 8px; 
+    list-style: none;
+    box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+    opacity: 0; 
+    visibility: hidden; 
+    transform: translateY(-10px); 
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+
+.autocomplete-items.show { 
+    opacity: 1; 
+    visibility: visible; 
+    transform: translateY(0); 
+}
+
+.autocomplete-item {
+    padding: 12px 15px; 
+    cursor: pointer; 
+    border-radius: 8px; 
+    font-size: 0.85rem; 
+    font-weight: 600;
+    color: var(--text-main); 
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    margin-bottom: 2px;
+}
+
+.autocomplete-item:last-child {
+    margin-bottom: 0;
+}
+
+.autocomplete-item:hover, .autocomplete-active {
+    background: var(--panel-bg); 
+    color: var(--accent-blue);
+    box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+}
+
+.autocomplete-items::-webkit-scrollbar { width: 6px; }
+.autocomplete-items::-webkit-scrollbar-track { background: transparent; }
+.autocomplete-items::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+/* ============================================== */
+/* 🛡️ NEW CUSTOM AUTH SCREEN STYLES               */
+/* ============================================== */
+.auth-pulse-logo { font-size: 3rem; font-weight: 800; color: var(--accent-blue); letter-spacing: 5px; margin-bottom: 10px; text-transform: uppercase; }
+.auth-header-sub { font-size: 1.1rem; color: var(--text-light); margin-bottom: 30px; font-weight: 600; }
+.auth-inputs-container { display: flex; flex-direction: column; gap: 20px; }
+.auth-field { width: 100%; text-align: left; font-size: 1rem; padding: 15px 20px; border-radius: 15px; }
+.auth-continue-btn { width: 100%; padding: 15px; font-size: 1rem; letter-spacing: 1px; font-weight: 800; text-transform: uppercase; border-radius: 15px; }
+
+
+
+
+
+
+
+
+
+
+script.js
+
+// ==============================================
+// 🚀 STATE & PERSISTENCE
+// ==============================================
+let userName = "Operator";
+// Feature Structure: Task States
+let tasks = {}; 
+let taskOrder = []; 
+let activeTaskId = null; 
+let currentViewTaskId = null;
+// User stats
+let stats = {}; 
+const DAILY_GOAL = 4;
+// STRICT SCORING RULES
+const TASK_CONFIG = {
+    low: { time: 25, score: 20 },
+    medium: { time: 35, score: 30 },
+    high: { time: 55, score: 50 } 
+};
+// Global Timer Variables
+let globalTimerInterval = null;
+const RADIUS = 160; 
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+// DOM Elements
+const beep = document.getElementById("beep-sound");
+const taskListContainer = document.getElementById("task-list");
+
+// Dashboard Elements
+const dashTimerDisplay = document.getElementById("timer-numbers");
+const dashCircle = document.getElementById("progress-ring");
+const dashStartBtn = document.getElementById("start-btn");
+const dashResetBtn = document.getElementById("reset-btn");
+const customMinInput = document.getElementById("custom-min");
+
+// Workspace Elements
+const workspaceModal = document.getElementById("workspace-modal");
+const wsTitle = document.getElementById("ws-task-title");
+const wsTimerDisplay = document.getElementById("ws-timer-numbers");
+const wsCircle = document.getElementById("ws-progress-ring");
+const wsStartBtn = document.getElementById("ws-start-btn");
+const wsResetBtn = document.getElementById("ws-reset-btn");
+const wsSkipBtn = document.getElementById("ws-skip-btn");
+const wsCompleteBtn = document.getElementById("ws-complete-btn");
+const wsPomodoroCount = document.getElementById("ws-pomodoro-count");
+const wsStatusText = document.getElementById("ws-status-text");
+const wsDial = document.getElementById("ws-dial");
+const wsDialContainer = document.getElementById("ws-dial-container");
+const wsModeDot = document.getElementById("ws-mode-dot");
+const wsTimerLabel = document.getElementById("ws-timer-label");
+const wsCustomMinInput = document.getElementById("ws-custom-min");
+// Analytics
+let focusChartInstance = null;
+
+dashCircle.style.strokeDasharray = CIRCUMFERENCE;
+wsCircle.style.strokeDasharray = CIRCUMFERENCE;
+
+// ==============================================
+// 💾 DATA MANAGEMENT
+// ==============================================
+function initSystem(name) {
+    userName = name;
+    
+    const statsKey = 'pulseStats_' + name.toLowerCase();
+    stats = JSON.parse(localStorage.getItem(statsKey)) || {
+        sessionsToday: 0, totalTimeToday: 0, totalLifetimeTime: 0, score: 0, streak: 0,
+        lastActiveDate: null, historyData: {}, hourDistribution: {} 
+    };
+    const tasksKey = 'pulseTasks_' + name.toLowerCase();
+    tasks = JSON.parse(localStorage.getItem(tasksKey)) || {};
+    
+    const orderKey = 'pulseTaskOrder_' + name.toLowerCase();
+    taskOrder = JSON.parse(localStorage.getItem(orderKey)) || [];
+
+    Object.keys(tasks).forEach(id => { if(!taskOrder.includes(id)) taskOrder.push(id); });
+    taskOrder = taskOrder.filter(id => tasks[id]); 
+
+    const today = getTodayStr();
+    if (stats.lastActiveDate !== today) {
+        if (stats.lastActiveDate) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (new Date(stats.lastActiveDate).toISOString().split("T")[0] !== yesterday.toISOString().split("T")[0]) {
+                stats.streak = 0;
+            }
+        }
+        stats.sessionsToday = 0;
+        stats.totalTimeToday = 0;
+        stats.lastActiveDate = today;
+    }
+
+    const now = Date.now();
+    for (let id in tasks) {
+        let t = tasks[id];
+        if (t.state === 'running' && (!t.completed || t.mode !== 'WORK')) {
+            let elapsedSecs = Math.floor((now - t.lastUpdated) / 1000);
+            t.timeLeft -= elapsedSecs;
+            if (t.timeLeft <= 0) {
+                t.timeLeft = 0;
+                t.state = 'paused'; 
+            }
+            activeTaskId = id;
+        }
+        t.lastUpdated = now;
+    }
+
+    saveData();
+    renderTaskList();
+    updateDashboardUI();
+    enableDragAndDrop();
+    if(!globalTimerInterval) {
+        globalTimerInterval = setInterval(globalTick, 1000);
+    }
+}
+
+function saveData() {
+    localStorage.setItem('pulseStats_' + userName.toLowerCase(), JSON.stringify(stats));
+    localStorage.setItem('pulseTasks_' + userName.toLowerCase(), JSON.stringify(tasks));
+    localStorage.setItem('pulseTaskOrder_' + userName.toLowerCase(), JSON.stringify(taskOrder));
+}
+
+setInterval(() => { if(userName !== "Operator") saveData(); }, 5000);
+
+function getTodayStr() {
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    return (new Date(Date.now() - tzOffset)).toISOString().split("T")[0];
+}
+
+// ==============================================
+// ⏱️ MASTER TIMER SYSTEM
+// ==============================================
+let generalFocus = { timeLeft: 25 * 60, totalTime: 25 * 60, state: 'idle', mode: 'WORK' };
+function globalTick() {
+    if (!activeTaskId) return;
+
+    let target = activeTaskId === 'general' ? generalFocus : tasks[activeTaskId];
+    if (target.state === 'running' && (!target.completed || target.mode !== 'WORK')) {
+        target.timeLeft--;
+        if (activeTaskId !== 'general') target.lastUpdated = Date.now();
+
+        if (target.timeLeft <= 0) {
+            target.timeLeft = 0;
+            if (activeTaskId === 'general') {
+                handleTimerComplete('general');
+            } else {
+                if (target.mode === 'WORK') {
+                    completeTask(activeTaskId);
+                } else {
+                    handleTimerComplete(activeTaskId);
+                }
+            }
+        }
+    }
+    updateUI();
+}
+
+function updateUI() {
+    if (!currentViewTaskId) {
+        let target = activeTaskId === 'general' ?
+        generalFocus : (tasks[activeTaskId] || generalFocus);
+        let timeToDisplay = target.timeLeft;
+        let total = activeTaskId === 'general' ?
+        target.totalTime : (target.customTime || TASK_CONFIG[target.priority].time) * 60;
+        if(target.mode && target.mode !== 'WORK') total = (target.mode === 'SHORT_BREAK' ? 5 : 15) * 60;
+        updateDial(dashTimerDisplay, dashCircle, timeToDisplay, total);
+        dashStartBtn.textContent = target.state === 'running' ? "PAUSE" : (target.state === 'idle' ? "START" : "RESUME");
+    }
+
+    if (currentViewTaskId && tasks[currentViewTaskId]) {
+        let t = tasks[currentViewTaskId];
+        let total = t.mode === 'WORK' ? (t.customTime || TASK_CONFIG[t.priority].time) * 60 : (t.mode === 'SHORT_BREAK' ? 5 : 15) * 60;
+        updateDial(wsTimerDisplay, wsCircle, t.timeLeft, total);
+        wsStartBtn.textContent = t.state === 'running' ? "PAUSE" : (t.state === 'idle' ? "START" : "RESUME");
+    }
+}
+
+function updateDial(textElem, ringElem, timeLeft, totalTime) {
+    let m = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+    let s = String(timeLeft % 60).padStart(2, "0");
+    textElem.textContent = `${m}:${s}`;
+    let percent = totalTime > 0 ? timeLeft / totalTime : 0;
+    ringElem.style.strokeDashoffset = CIRCUMFERENCE * (1 - percent);
+}
+
+// ==============================================
+// 🎯 COMPLETION & BREAK SYSTEM
+// ==============================================
+function completeTask(id) {
+    let t = tasks[id];
+    if (!t || t.completed) return;
+
+    t.completed = true;
+    t.state = 'completed';
+    t.timeLeft = 0; 
+    
+    stats.score += TASK_CONFIG[t.priority].score;
+    stats.sessionsToday++;
+    let sessionMins = t.customTime || TASK_CONFIG[t.priority].time;
+    stats.totalTimeToday += sessionMins;
+    stats.totalLifetimeTime += sessionMins;
+
+    let today = getTodayStr();
+    if(!stats.historyData[today]) stats.historyData[today] = {low:0, medium:0, high:0};
+    stats.historyData[today][t.priority] += sessionMins;
+
+    let currentHour = new Date().getHours();
+    stats.hourDistribution[currentHour] = (stats.hourDistribution[currentHour] || 0) + sessionMins;
+
+    if (stats.sessionsToday === DAILY_GOAL) stats.score += 50;
+    if (stats.sessionsToday === 1) stats.streak++;
+    logHistory(`Completed Task: "${t.text}" (+${TASK_CONFIG[t.priority].score} pts)`);
+    
+    t.pomodoros++;
+    if (t.pomodoros % 4 === 0) {
+        t.mode = 'LONG_BREAK';
+        t.timeLeft = 15 * 60;
+    } else {
+        t.mode = 'SHORT_BREAK';
+        t.timeLeft = 5 * 60;
+    }
+    
+    t.state = 'running';
+    t.lastUpdated = Date.now();
+    activeTaskId = id; 
+
+    saveData();
+    renderWorkspaceContent(); 
+    renderTaskList(); 
+    updateDashboardUI();
+    
+    beep.play();
+    if(currentViewTaskId === id) applyWorkspaceGlow('glow-completed', "Task Mastered! Break Timer Started.");
+}
+
+function handleTimerComplete(id) {
+    beep.play();
+    if (id === 'general') {
+        generalFocus.state = 'idle';
+        generalFocus.timeLeft = generalFocus.totalTime;
+        logHistory(`Completed General Focus`);
+    } else {
+        let t = tasks[id];
+        t.state = 'idle'; 
+        t.mode = 'WORK'; 
+        logHistory(`Break complete for: ${t.text}`);
+        if(currentViewTaskId === id) applyWorkspaceGlow('glow-work', "Break Finished.");
+        activeTaskId = null;
+        saveData();
+        if(currentViewTaskId === id) renderWorkspaceContent(); 
+    }
+}
+
+function applyWorkspaceGlow(className, text) {
+    wsDialContainer.classList.add(className);
+    wsStatusText.textContent = text;
+    wsStatusText.style.color = className === 'glow-break' ? 'var(--accent-orange)' : (className === 'glow-completed' ? 'var(--accent-green)' : 'var(--accent-blue)');
+    setTimeout(() => {
+        wsDialContainer.classList.remove(className);
+        wsStatusText.textContent = "";
+    }, 4000);
+}
+
+// ==============================================
+// 📋 TASK MANAGEMENT & DRAG AND DROP
+// ==============================================
+document.getElementById("add-task-btn").onclick = () => {
+    const text = document.getElementById("task-input").value.trim();
+    const priority = document.getElementById("priority").value;
+    if (!text) return;
+
+    const taskId = 'task_' + Date.now();
+    tasks[taskId] = {
+        id: taskId,
+        text: text,
+        priority: priority,
+        mode: 'WORK',
+        customTime: TASK_CONFIG[priority].time, 
+        timeLeft: TASK_CONFIG[priority].time * 60,
+        state: 'idle',
+        pomodoros: 0,
+        completed: false, 
+        lastUpdated: Date.now()
+    };
+
+    taskOrder.push(taskId); 
+    document.getElementById("task-input").value = "";
+    saveData();
+    renderTaskList();
+};
+
+function renderTaskList() {
+    taskListContainer.innerHTML = '';
+    taskOrder.forEach(id => {
+        let t = tasks[id];
+        if(!t) return;
+        
+        let li = document.createElement("li");
+        li.setAttribute("draggable", "true"); 
+        li.dataset.taskId = id;
+        
+        if (t.completed) {
+            li.className = `task-item completed`;
+            li.innerHTML = `
+                <div class="task-tick">✓</div>
+                <span class="task-text">${t.text}</span>
+                <button class="task-del" title="Remove Task">×</button>
+            `;
+            li.onclick = (e) => {
+                if (e.target.classList.contains('task-del')) return;
+                openWorkspace(id);
+            };
+        } else {
+            li.className = `task-item ${t.state === 'running' ? 'status-running' : (t.state === 'paused' ? 'status-paused' : '')}`;
+            let icon = t.state === 'running' ? '▶' : (t.state === 'paused' ? '⏸' : '');
+            li.innerHTML = `
+                <div class="task-status-icon">${icon}</div>
+                <div class="task-dot ${t.priority}"></div>
+                <span class="task-text">${t.text}</span>
+                <button class="task-del" title="Remove Task">×</button>
+            `;
+            li.onclick = (e) => {
+                if (e.target.classList.contains('task-del')) return;
+                openWorkspace(id);
+            };
+        }
+
+        li.addEventListener('dragstart', () => li.classList.add('dragging'));
+        li.addEventListener('dragend', () => li.classList.remove('dragging'));
+        li.querySelector(".task-del").onclick = (e) => {
+            e.stopPropagation();
+            if(activeTaskId === id) activeTaskId = null;
+            delete tasks[id];
+            taskOrder = taskOrder.filter(taskId => taskId !== id);
+            saveData();
+            renderTaskList();
+        };
+
+        taskListContainer.appendChild(li);
+    });
+}
+
+function enableDragAndDrop() {
+    taskListContainer.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(taskListContainer, e.clientY);
+        const draggable = document.querySelector('.dragging');
+        if (draggable) {
+            if (afterElement == null) {
+                taskListContainer.appendChild(draggable);
+            } else {
+                taskListContainer.insertBefore(draggable, afterElement);
+            }
+        }
+    });
+    taskListContainer.addEventListener('drop', () => {
+        const currentItems = [...taskListContainer.querySelectorAll('.task-item')];
+        taskOrder = currentItems.map(item => item.dataset.taskId);
+        saveData();
+    });
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// ==============================================
+// 🏢 WORKSPACE LOGIC & PENALTY TRIGGERS
+// ==============================================
+function openWorkspace(id) {
+    currentViewTaskId = id;
+    renderWorkspaceContent();
+    document.getElementById("workspace-modal").classList.remove("hidden");
+}
+
+document.getElementById("ws-back-btn").onclick = () => {
+    currentViewTaskId = null;
+    document.getElementById("workspace-modal").classList.add("hidden");
+    renderTaskList(); 
+    updateUI();
+};
+
+function renderWorkspaceContent() {
+    if(!currentViewTaskId || !tasks[currentViewTaskId]) return;
+    let t = tasks[currentViewTaskId];
+    
+    wsTitle.textContent = t.text;
+    wsPomodoroCount.textContent = t.pomodoros;
+    wsCustomMinInput.disabled = t.completed || t.state === 'running';
+    wsCompleteBtn.disabled = t.completed;
+    wsCompleteBtn.textContent = t.completed ? "TASK COMPLETED" : "✓ COMPLETE TASK";
+    if (t.mode === 'WORK' || (t.completed && t.state === 'idle')) {
+        wsDial.classList.remove('break-mode');
+        wsModeDot.classList.remove('break-dot');
+        wsTimerLabel.textContent = "FOCUS TIME";
+        wsSkipBtn.classList.add('hidden');
+        wsResetBtn.disabled = t.completed;
+        wsStartBtn.disabled = t.completed;
+    } else {
+        wsDial.classList.add('break-mode');
+        wsModeDot.classList.add('break-dot');
+        wsTimerLabel.textContent = t.mode === 'SHORT_BREAK' ? "SHORT BREAK" : "LONG BREAK";
+        wsSkipBtn.classList.remove('hidden');
+        wsResetBtn.disabled = true; 
+        wsStartBtn.disabled = false;
+    }
+    
+    wsCustomMinInput.value = t.customTime || TASK_CONFIG[t.priority].time;
+    updateUI();
+}
+
+wsCustomMinInput.addEventListener('change', (e) => {
+    let t = tasks[currentViewTaskId];
+    if (!t || t.completed || t.state === 'running' || t.mode !== 'WORK') return;
+    
+    let val = parseInt(e.target.value);
+    if (val > 0) {
+        t.customTime = val;
+        t.timeLeft = val * 60;
+        saveData();
+        updateUI();
+    }
+});
+
+wsStartBtn.onclick = () => {
+    let t = tasks[currentViewTaskId];
+    if(t.completed && t.mode === 'WORK') return;
+    if (t.state === 'running') {
+        t.state = 'paused';
+        activeTaskId = null;
+    } else {
+        if (activeTaskId && activeTaskId !== currentViewTaskId) {
+            if(activeTaskId === 'general') generalFocus.state = 'paused';
+            else tasks[activeTaskId].state = 'paused';
+        }
+        t.state = 'running';
+        t.lastUpdated = Date.now();
+        activeTaskId = currentViewTaskId;
+    }
+    saveData();
+    updateUI();
+    renderWorkspaceContent();
+    renderTaskList();
+};
+
+wsResetBtn.onclick = () => {
+    let t = tasks[currentViewTaskId];
+    if(t.completed) return;
+
+    t.state = 'idle';
+    t.mode = 'WORK';
+    t.timeLeft = (t.customTime || TASK_CONFIG[t.priority].time) * 60;
+    if(activeTaskId === currentViewTaskId) activeTaskId = null;
+    
+    stats.score = Math.max(0, stats.score - 10);
+    logHistory(`Task Reset (-10 pts)`);
+    
+    saveData();
+    renderWorkspaceContent();
+    updateDashboardUI();
+};
+
+wsSkipBtn.onclick = () => {
+    let t = tasks[currentViewTaskId];
+    if(t.mode === 'WORK') return;
+
+    t.state = 'idle';
+    t.mode = 'WORK';
+    t.timeLeft = (t.customTime || TASK_CONFIG[t.priority].time) * 60;
+    if(activeTaskId === currentViewTaskId) activeTaskId = null;
+
+    stats.score = Math.max(0, stats.score - 5); 
+    logHistory(`Skipped Break (-5 pts)`);
+
+    saveData();
+    renderWorkspaceContent();
+    updateDashboardUI();
+};
+
+wsCompleteBtn.onclick = () => { completeTask(currentViewTaskId); };
+
+dashStartBtn.onclick = () => {
+    if (generalFocus.state === 'running') {
+        generalFocus.state = 'paused';
+        activeTaskId = null;
+    } else {
+        if (activeTaskId && activeTaskId !== 'general') {
+             tasks[activeTaskId].state = 'paused';
+        }
+        generalFocus.state = 'running';
+        activeTaskId = 'general';
+    }
+    updateUI();
+    renderTaskList();
+};
+
+dashResetBtn.onclick = () => {
+    generalFocus.state = 'idle';
+    generalFocus.timeLeft = parseInt(customMinInput.value || 25) * 60;
+    generalFocus.totalTime = generalFocus.timeLeft;
+    if(activeTaskId === 'general') activeTaskId = null;
+    
+    stats.score = Math.max(0, stats.score - 10); 
+    logHistory(`General Reset (-10 pts)`);
+    
+    updateDashboardUI();
+    updateUI();
+};
+
+customMinInput.addEventListener('change', () => {
+    if (generalFocus.state !== 'running') {
+        let val = parseInt(customMinInput.value) || 25;
+        generalFocus.timeLeft = val * 60;
+        generalFocus.totalTime = val * 60;
+        updateUI();
+    }
+});
+
+// ==============================================
+// 📊 DEEP ANALYTICS RESTORATION
+// ==============================================
+document.getElementById("open-analytics-btn").onclick = () => {
+    document.getElementById("analytics-modal").classList.remove("hidden");
+    populateAnalytics();
+};
+document.getElementById("close-analytics-btn").onclick = () => {
+    document.getElementById("analytics-modal").classList.add("hidden");
+};
+
+function populateAnalytics() {
+    const totalHours = Math.floor(stats.totalLifetimeTime / 60);
+    const remainderMins = stats.totalLifetimeTime % 60;
+    document.getElementById("lifetime-hours").textContent = `${totalHours}h ${remainderMins}m`;
+
+    let peakHour = -1;
+    let maxMins = 0;
+    for (const [hour, mins] of Object.entries(stats.hourDistribution)) {
+        if (mins > maxMins) {
+            maxMins = mins;
+            peakHour = parseInt(hour);
+        }
+    }
+    if (peakHour !== -1) {
+        let ampm = peakHour >= 12 ? 'PM' : 'AM';
+        let displayHour = peakHour % 12;
+        if (displayHour === 0) displayHour = 12;
+        document.getElementById("peak-time").textContent = `${displayHour}:00 ${ampm}`;
+    } else {
+        document.getElementById("peak-time").textContent = "Not enough data";
+    }
+
+    renderChart();
+    renderHeatmap();
+}
+
+function renderChart() {
+    const ctx = document.getElementById('focusChart').getContext('2d');
+    const labels = [], lowData = [], medData = [], highData = [];
+    
+    for (let i = 6; i >= 0; i--) {
+        let d = new Date();
+        d.setDate(d.getDate() - i);
+        let dateStr = d.toISOString().split('T')[0];
+        
+        let displayLabel = d.toLocaleDateString('en-US', { weekday: 'short' });
+        labels.push(displayLabel);
+        let dayData = stats.historyData[dateStr] || { low: 0, medium: 0, high: 0 };
+        if (typeof dayData === 'number') dayData = { low: dayData, medium: 0, high: 0 };
+        
+        lowData.push(dayData.low || 0);
+        medData.push(dayData.medium || 0);
+        highData.push(dayData.high || 0);
+    }
+
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const textColor = isDark ? "#8e9bb0" : "#4a5568";
+    const gridColor = isDark ? "#21262d" : "#f0f0f0";
+    const colorLow = "#39d353";
+    const colorMed = isDark ? "#ffd700" : "#f1c40f"; 
+    const colorHigh = "#ff5252";
+
+    if (focusChartInstance) focusChartInstance.destroy();
+
+    focusChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Low Priority', data: lowData, backgroundColor: colorLow, borderRadius: 4 },
+                { label: 'Med Priority', data: medData, backgroundColor: colorMed, borderRadius: 4 },
+                { label: 'High Priority', data: highData, backgroundColor: colorHigh, borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: true, labels: { color: textColor, font: { size: 10 } } } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+                x: { grid: { display: false }, ticks: { color: textColor } }
+            }
+        }
+    });
+}
+
+function renderHeatmap() {
+    const container = document.getElementById("heatmap-grid");
+    container.innerHTML = "";
+    for (let i = 29; i >= 0; i--) {
+        let d = new Date();
+        d.setDate(d.getDate() - i);
+        let dateStr = d.toISOString().split('T')[0];
+        
+        let dayData = stats.historyData[dateStr] || { low: 0, medium: 0, high: 0 };
+        if (typeof dayData === 'number') dayData = { low: dayData, medium: 0, high: 0 };
+        let mins = (dayData.low || 0) + (dayData.medium || 0) + (dayData.high || 0);
+        
+        let level = 0;
+        if (mins > 0 && mins <= 25) level = 1;
+        else if (mins > 25 && mins <= 60) level = 2;
+        else if (mins > 60 && mins <= 120) level = 3;
+        else if (mins > 120) level = 4;
+        
+        let box = document.createElement("div");
+        box.className = `heat-box level-${level}`;
+        box.title = `${d.toLocaleDateString()}: ${mins} minutes`; 
+        container.appendChild(box);
+    }
+}
+
+// ==============================================
+// 🔌 LOGIN, LOGOUT & FEEDBACK
+// ==============================================
+document.getElementById("login-confirm").onclick = () => {
+    const nameInput = document.getElementById("user-name").value.trim();
+    if (nameInput) initSystem(nameInput);
+    
+    document.getElementById("auth-overlay").classList.add("hidden");
+    document.getElementById("app-main").classList.remove("hidden");
+    document.getElementById("greeting").textContent = `Operator ${userName} Online`;
+};
+
+document.getElementById("logout-btn").onclick = () => {
+    if(activeTaskId === 'general') generalFocus.state = 'paused';
+    else if(activeTaskId) tasks[activeTaskId].state = 'paused';
+    activeTaskId = null;
+    saveData();
+
+    currentRating = 0;
+    updateStarUI();
+    document.getElementById("feedback-modal").classList.remove("hidden");
+};
+
+let currentRating = 0;
+const stars = document.querySelectorAll(".star");
+
+stars.forEach(star => {
+    star.addEventListener('mouseover', function() {
+        const val = this.getAttribute('data-value');
+        stars.forEach(s => { s.classList.toggle('hovered', s.getAttribute('data-value') <= val); });
+    });
+    star.addEventListener('mouseout', () => stars.forEach(s => s.classList.remove('hovered')));
+    star.addEventListener('click', function() {
+        currentRating = this.getAttribute('data-value');
+        updateStarUI();
+    });
+});
+
+function updateStarUI() {
+    stars.forEach(s => s.classList.toggle('selected', s.getAttribute('data-value') <= currentRating));
+}
+
+function processLogout() {
+    document.getElementById("feedback-modal").classList.add("hidden");
+    document.getElementById("app-main").classList.add("hidden");
+    document.getElementById("workspace-modal").classList.add("hidden");
+    document.getElementById("analytics-modal").classList.add("hidden");
+    document.getElementById("auth-overlay").classList.remove("hidden");
+    document.getElementById("user-name").value = "";
+    currentViewTaskId = null;
+}
+
+document.getElementById("submit-feedback-btn").onclick = () => {
+    if(currentRating > 0) {
+        const operatorKey = 'pulseFeedback_' + userName.toLowerCase();
+        let userFeedback = JSON.parse(localStorage.getItem(operatorKey)) || [];
+        userFeedback.push({ rating: currentRating, timestamp: new Date().toISOString() });
+        localStorage.setItem(operatorKey, JSON.stringify(userFeedback));
+    }
+    processLogout();
+};
+
+document.getElementById("skip-feedback-btn").onclick = () => processLogout();
+
+function updateDashboardUI() {
+    if(stats.streak === undefined) return; 
+    document.getElementById("streak-count").textContent = stats.streak;
+    document.getElementById("total-time").textContent = stats.totalTimeToday + "m";
+    document.getElementById("prod-score").textContent = stats.score;
+    document.getElementById("goal-current").textContent = stats.sessionsToday;
+    document.getElementById("goal-target").textContent = DAILY_GOAL;
+    document.getElementById("goal-progress").style.width = Math.min((stats.sessionsToday / DAILY_GOAL) * 100, 100) + "%";
+}
+
+function logHistory(message) {
+    const div = document.createElement("div");
+    div.className = "log-item";
+    div.innerHTML = `<strong>${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong> - ${message}`;
+    const container = document.getElementById("history-log");
+    if (container.querySelector('.empty')) container.innerHTML = '';
+    container.prepend(div);
+}
+
+document.getElementById("clear-history").onclick = () => {
+    if(confirm(`Reset all stats for ${userName}?`)) {
+        stats = { sessionsToday: 0, totalTimeToday: 0, totalLifetimeTime: 0, score: 0, streak: 0, lastActiveDate: getTodayStr(), historyData: {}, hourDistribution: {} };
+        saveData();
+        updateDashboardUI();
+        document.getElementById("history-log").innerHTML = '<p class="empty">Stats cleared.</p>';
+    }
+};
+
+document.getElementById("theme-toggle").addEventListener("click", () => {
+    const html = document.documentElement;
+    html.getAttribute("data-theme") === "dark" ? html.removeAttribute("data-theme") : html.setAttribute("data-theme", "dark");
+    if(!document.getElementById("analytics-modal").classList.contains("hidden")) renderChart();
+});
+
+setInterval(() => {
+    document.getElementById("real-time-clock").textContent = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+}, 1000);
+
+// ==============================================
+// 🧠 AI-LIKE AUTOCOMPLETE TASK SUGGESTIONS
+// ==============================================
+const TASK_SUGGESTIONS = [
+    "Attend Lecture", "Arrange Files", "Analyze Report", "Answer Emails", "Audit Notes", "Assign Roles", "Approve Budget", "Archive Data", "Add References", "Adjust Schedule", "Activate Account", "Assess Progress", "Apply Internship", "Ask Questions", "Attend Meeting", "Annotate Notes", "Assemble Team", "Align Goals", "Acquire Skills", "Amend Draft",
+    "Backup Files", "Book Venue", "Brainstorm Ideas", "Build Resume", "Balance Budget", "Brief Team", "Buy Supplies", "Batch Tasks", "Block Calendar", "Browse Research", "Break Tasks", "Benchmark Results", "Broadcast Update", "Boost Engagement", "Build Portfolio", "Bill Client", "Bring Documents", "Brain Dump", "Balance Workload", "Backup Database",
+    "Check Emails", "Create Slides", "Complete Assignment", "Conduct Survey", "Clean Workspace", "Call Client", "Coordinate Event", "Calculate Expenses", "Confirm Booking", "Collect Feedback", "Code Review", "Compare Prices", "Contact Professor", "Compile Notes", "Craft Proposal", "Correct Errors", "Categorize Files", "Celebrate Wins", "Check Attendance", "Create Budget",
+    "Draft Email", "Design Poster", "Debug Code", "Deliver Presentation", "Discuss Project", "Document Process", "Delegate Tasks", "Develop Strategy", "Download Material", "Distribute Notes", "Define Goals", "Draw Diagram", "Discuss Feedback", "Deploy Update", "Design Logo", "Draft Report", "Declutter Desk", "Double Check", "Do Homework", "Digitize Notes",
+    "Edit Document", "Evaluate Performance", "Enroll Course", "Email Team", "Examine Results", "Execute Plan", "Estimate Budget", "Expand Network", "Enter Data", "Explain Concept", "Export Files", "Engage Audience", "Erase Board", "Establish Routine", "Explore Topics", "Edit Resume", "Exchange Ideas", "Enhance Skills", "Escalate Issue", "Examine Records",
+    "Finish Assignment", "Fix Errors", "Finalize Proposal", "Follow Up", "File Documents", "Format Report", "Fund Project", "Facilitate Meeting", "Forecast Sales", "Fill Forms", "Find Resources", "Focus Session", "Form Team", "Frame Agenda", "Fetch Data", "Forward Email", "Freeze Budget", "Fulfill Orders", "Finish Reading", "Fact Check",
+    "Generate Ideas", "Grade Papers", "Gather Feedback", "Give Presentation", "Go Networking", "Group Discussion", "Guide Interns", "Generate Invoice", "Grab Coffee", "Grow Audience", "Generate Leads", "Gather Supplies", "Gain Experience", "Greet Clients", "Give Interview", "Graph Results", "Go Reviewing", "Gather Notes", "Grant Access", "Guide Team",
+    "Host Meeting", "Handle Queries", "Hire Interns", "Highlight Points", "Help Colleague", "Hold Workshop", "Hone Skills", "Handwrite Notes", "Have Discussion", "Host Webinar", "Hunt Errors", "Handle Complaints", "Handoff Project", "Highlight Errors", "Hire Candidate", "Harmonize Data", "Head Research", "Handle Inventory", "Host Event", "Help Students",
+    "Improve Resume", "Inspect Files", "Initiate Project", "Interview Candidate", "Invite Guests", "Issue Invoice", "Implement Changes", "Integrate Tools", "Illustrate Concepts", "Increase Sales", "Inform Team", "Install Software", "Inspect Equipment", "Investigate Issue", "Introduce Speaker", "Index Notes", "Innovate Product", "Improve Workflow", "Interpret Data", "Inspire Team",
+    "Join Seminar", "Judge Competition", "Jot Ideas", "Join Webinar", "Justify Budget", "Jumpstart Project", "Journal Thoughts", "Join Discussion", "Job Hunting", "Join Training", "Judge Entries", "Jam Session", "Join Club", "Juggle Tasks", "Join Community", "Jot Summary", "Join Program", "Join Research", "Join Campaign", "Join Meetup",
+    "Keep Records", "Kickoff Meeting", "Know Policies", "Keep Learning", "Keynote Practice", "Keep Updating", "Knock Deadlines", "Keep Budgeting", "Keep Tracking", "Kindle Creativity", "Keep Networking", "Keep Reading", "Keep Planning", "Key Data", "Keep Organizing", "Keep Improving", "Keep Revising", "Keep Exploring", "Keep Writing", "Keep Collaborating",
+    "Lead Discussion", "Learn Coding", "Launch Campaign", "Label Files", "Listen Podcast", "Lead Workshop", "List Expenses", "Link Accounts", "Log Hours", "Learn Concepts", "Lead Team", "Layout Design", "Look Research", "Launch Website", "Learn Software", "Lift Performance", "Locate Errors", "Log Progress", "Lead Brainstorm", "Learn Speaking",
+    "Make Notes", "Manage Team", "Monitor Progress", "Meet Professor", "Mail Documents", "Modify Design", "Market Product", "Maintain Records", "Measure Growth", "Merge Files", "Manage Budget", "Motivate Team", "Match Data", "Map Strategy", "Move Files", "Meet Deadline", "Manage Schedule", "Maintain Focus", "Make Presentation", "Mentor Juniors",
+    "Note Ideas", "Negotiate Deal", "Network Online", "Normalize Data", "Notify Team", "Name Files", "Narrow Topics", "Note Minutes", "Navigate Portal", "Nominate Leader", "Nurture Skills", "Network Students", "Number Pages", "Note Feedback", "Narrow Search", "Negotiate Budget", "Notify Clients", "Network Professionals", "Name Project", "Note Attendance",
+    "Organize Desk", "Outline Essay", "Open Discussion", "Order Supplies", "Observe Trends", "Optimize Workflow", "Offer Support", "Operate System", "Obtain Approval", "Organize Meeting", "Overcome Delays", "Outline Plan", "Oversee Project", "Open Portal", "Offer Feedback", "Organize Event", "Order Lunch", "Observe Performance", "Open Assignment", "Organize Notes",
+    "Prepare Notes", "Plan Schedule", "Practice Coding", "Print Documents", "Present Ideas", "Publish Report", "Participate Discussion", "Proofread Essay", "Promote Event", "Process Payments", "Prioritize Tasks", "Prepare Budget", "Pack Materials", "Pitch Proposal", "Practice Interview", "Post Updates", "Prepare Slides", "Process Applications", "Plan Campaign", "Prepare Agenda",
+    "Qualify Leads", "Question Assumptions", "Queue Emails", "Quote Prices", "Quantify Results", "Query Database", "Quick Review", "Quiz Team", "Queue Tasks", "Qualify Candidates", "Quote Budget", "Quantify Data", "Queue Reports", "Quick Meeting", "Qualify Vendors", "Question Strategy", "Queue Calls", "Query Records", "Quote Timeline", "Quick Notes",
+    "Review Notes", "Record Attendance", "Research Topics", "Reply Emails", "Revise Chapter", "Run Meeting", "Reach Clients", "Recheck Data", "Resolve Issue", "Report Progress", "Rebuild Portfolio", "Refresh Design", "Register Course", "Raise Query", "Recruit Members", "Reorganize Files", "Rehearse Speech", "Rewrite Draft", "Review Budget", "Rank Candidates",
+    "Submit Assignment", "Schedule Meeting", "Study Chapters", "Send Reminder", "Solve Problems", "Share Feedback", "Save Draft", "Support Team", "Simplify Process", "Set Goals", "Summarize Notes", "Start Research", "Sketch Ideas", "Secure Files", "Sort Documents", "Sync Calendar", "Scan Papers", "Sign Contract", "Structure Essay", "Speak Publicly",
+    "Track Progress", "Teach Concepts", "Test Software", "Train Team", "Take Notes", "Tidy Workspace", "Transfer Files", "Talk Clients", "Troubleshoot Issue", "Target Audience", "Tabulate Data", "Tune Presentation", "Test Features", "Type Report", "Thank Mentor", "Time Tasks", "Trace Expenses", "Train Interns", "Translate Notes", "Track Expenses",
+    "Update Resume", "Upload Assignment", "Understand Concepts", "Unite Team", "Use Templates", "Upgrade Skills", "Update Software", "Upload Files", "Utilize Resources", "Unpack Materials", "Update Records", "Understand Feedback", "Unite Departments", "Upload Presentation", "Use Shortcuts", "Update Budget", "Understand Policies", "Upgrade Portfolio", "Upload Documents", "Update Calendar",
+    "Verify Data", "Visit Library", "Visualize Goals", "Volunteer Event", "Validate Results", "View Reports", "Verify Attendance", "Visit Client", "Value Feedback", "Voice Opinions", "Verify Documents", "Visualize Strategy", "Visit Campus", "Verify Entries", "View Analytics", "Validate Budget", "Volunteer Team", "View Progress", "Verify Details", "Visit Workshop",
+    "Write Report", "Work Collaboratively", "Watch Tutorial", "Win Competition", "Welcome Guests", "Work Remotely", "Weigh Options", "Withdraw Cash", "Write Summary", "Work Overtime", "Watch Lecture", "Wrap Project", "Welcome Interns", "Work Efficiently", "Write Proposal", "Workshop Planning", "Work Strategically", "Watch Webinar", "Work Quietly", "Write Minutes",
+    "Xerox Documents", "Xray Problems", "Xpress Delivery", "Xplore Ideas", "Xtract Data", "Xchange Feedback", "Xpand Network", "Xamine Results", "Xecute Strategy", "Xpress Gratitude",
+    "Yield Results", "Yarn Discussion", "Yearly Planning", "Yellow Highlighting", "Yoke Teams", "Yield Feedback", "Yawn Break", "Yearly Budgeting", "Yield Profits", "Youth Mentoring", "Yonder Research", "Yearly Review", "Yellow Notes", "Yield Growth", "Youth Campaign", "Yearly Audit", "Yoke Resources", "Yield Insights", "Youth Networking", "Yearly Targets",
+    "Zoom Meeting", "Zero Inbox", "Zip Files", "Zone Planning", "Zigzag Review", "Zoom Training", "Zap Errors", "Zonal Discussion", "Zoom Presentation", "Zenith Goals", "Zoom Webinar", "Zip Documents", "Zest Learning", "Zoom Interview", "Zero Delays", "Zonal Reporting", "Zoom Collaboration", "Zap Duplicates", "Zenith Performance", "Zoom Networking"
+];
+
+const taskInputEl = document.getElementById("task-input");
+const autocompleteList = document.getElementById("autocomplete-list");
+let currentFocusIndex = -1;
+
+taskInputEl.addEventListener("input", function() {
+    const val = this.value.trim().toLowerCase();
+    closeAllLists();
+    
+    if (!val) return;
+    
+    const matches = TASK_SUGGESTIONS.filter(item => item.toLowerCase().includes(val));
+    matches.sort((a, b) => {
+        const aStarts = a.toLowerCase().startsWith(val);
+        const bStarts = b.toLowerCase().startsWith(val);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return a.localeCompare(b);
+    });
+
+    if (matches.length === 0) return;
+
+    currentFocusIndex = -1;
+    autocompleteList.classList.remove('hidden');
+    
+    void autocompleteList.offsetWidth; 
+    autocompleteList.classList.add('show');
+
+    matches.forEach(match => {
+        const li = document.createElement("li");
+        li.className = "autocomplete-item";
+        
+        const regex = new RegExp(`(${val})`, "gi");
+        li.innerHTML = match.replace(regex, "<strong style='color: var(--accent-blue);'>$1</strong>");
+        
+        li.addEventListener("click", function(e) {
+            taskInputEl.value = match;
+            closeAllLists();
+        });
+        
+        autocompleteList.appendChild(li);
+    });
+});
+
+taskInputEl.addEventListener("keydown", function(e) {
+    let items = autocompleteList.getElementsByTagName("li");
+    if (!autocompleteList.classList.contains('show')) return;
+    
+    if (e.key === "ArrowDown") {
+        currentFocusIndex++;
+        addActive(items);
+    } else if (e.key === "ArrowUp") {
+        currentFocusIndex--;
+        addActive(items);
+    } else if (e.key === "Enter") {
+        if (currentFocusIndex > -1) {
+            e.preventDefault();
+            items[currentFocusIndex].click();
+        }
+    } else if (e.key === "Escape") {
+        closeAllLists();
+    }
+});
+
+function addActive(items) {
+    if (!items || items.length === 0) return false;
+    removeActive(items);
+    if (currentFocusIndex >= items.length) currentFocusIndex = 0;
+    if (currentFocusIndex < 0) currentFocusIndex = items.length - 1;
+    
+    items[currentFocusIndex].classList.add("autocomplete-active");
+    items[currentFocusIndex].scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function removeActive(items) {
+    for (let i = 0; i < items.length; i++) {
+        items[i].classList.remove("autocomplete-active");
+    }
+}
+
+function closeAllLists() {
+    autocompleteList.classList.remove('show');
+    setTimeout(() => {
+        if (!autocompleteList.classList.contains('show')) {
+            autocompleteList.innerHTML = '';
+            autocompleteList.classList.add('hidden');
+        }
+    }, 300);
+}
+
+document.addEventListener("click", function(e) {
+    if (e.target !== taskInputEl && e.target !== autocompleteList) {
+        closeAllLists();
+    }
+});
